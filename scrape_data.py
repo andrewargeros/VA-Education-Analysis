@@ -2,6 +2,7 @@ import pandas as pd
 import re
 import undetected_chromedriver as uc
 from selenium import webdriver
+from tqdm import tqdm
 
 def get_school_data(row):
   name = row.find_element_by_tag_name('a').get_attribute('innerHTML')
@@ -80,8 +81,9 @@ for row in df[df.index >= 7].itertuples():
 listings.to_csv('VA_listings_partial.csv', index=False)
 
 ## Read in the partial VA listings and scrape salaries
+tqdm.pandas()
 data = pd.read_csv("VA_employees_partial.csv").head()
-data['salary'] = data['link'].apply(get_salary)
+data['salary'] = data['link'].progress_apply(get_salary)
 
 data.to_csv('VA_employees_salaries.csv', index=False)
 
