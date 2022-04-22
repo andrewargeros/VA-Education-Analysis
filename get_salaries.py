@@ -10,7 +10,7 @@ tqdm.pandas()
 
 driver = uc.Chrome(executable_path = ChromeDriverManager().install())
 driver.set_window_size(1120, 550)
-driver.set_max_script_timeout(0.5)
+driver.set_script_timeout(0.5)
 
 def get_salary(link): 
   driver.get(link) 
@@ -22,7 +22,7 @@ def get_salary(link):
 data = pd.read_csv("VA_employees_partial.csv")
 
 chunk_list = np.array_split(data, 4)
-chunk = chunk_list[sys.argv[1]]
+chunk = chunk_list[sys.argv[1]-1]
 
 print(f"There are {data.shape[0]} Employees in the entire dataset")
 print(f"There are {chunk.shape[0]} Employees in the chunk {sys.argv[1]}")
