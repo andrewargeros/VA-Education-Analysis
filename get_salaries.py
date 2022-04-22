@@ -8,9 +8,16 @@ from tqdm import tqdm
 
 tqdm.pandas()
 
-driver = uc.Chrome(executable_path = ChromeDriverManager().install())
-driver.set_window_size(1120, 550)
-driver.set_script_timeout(0.5)
+def make_driver():
+  chrome_options = uc.ChromeOptions()
+  prefs = {"profile.managed_default_content_settings.images": 2,
+          "javascript.enabled": False}
+  chrome_options.add_experimental_option("prefs", prefs)
+  driver = uc.Chrome(executable_path = ChromeDriverManager().install(),
+                      options= chrome_options)
+  driver.set_window_size(1120, 550)
+  driver.set_page_load_timeout(time_to_wait=10)
+  return driver
 
 def get_salary(link): 
   driver.get(link) 
@@ -18,6 +25,8 @@ def get_salary(link):
   salary = salary[len(salary)-1].find_elements_by_tag_name('td')[1].get_attribute('innerHTML')
   salary = re.sub('[^0-9.]', '', salary)
   return salary
+
+driver = make_driver()
 
 data = pd.read_csv("VA_employees_partial.csv")
 
@@ -29,4 +38,4 @@ print(f"There are {chunk.shape[0]} Employees in the chunk {sys.argv[1]}")
 
 chunk['salary'] = chunk['link'].progress_apply(get_salary)
 
-chunk.to_csv(f"VA_employees_salaries_{sys.argv[1]}.csv", index=False)
+chunk.to_csv(f"VA_employees_salaries_chunk{sys.argv[1]}.csv", index=False)
