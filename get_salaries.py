@@ -16,7 +16,7 @@ def make_driver():
   driver = uc.Chrome(executable_path = ChromeDriverManager().install(),
                       options= chrome_options)
   driver.set_window_size(1120, 550)
-  driver.set_page_load_timeout(time_to_wait=10)
+  #driver.set_page_load_timeout(time_to_wait=10)
   return driver
 
 def get_salary(link, driver): 
