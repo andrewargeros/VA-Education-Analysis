@@ -1,7 +1,9 @@
 import pandas as pd
+import numpy as np
 import re
+import sys
 import undetected_chromedriver as uc
-from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 from tqdm import tqdm
 
 def get_school_data(row):
@@ -57,7 +59,17 @@ def get_salary(link):
   salary = re.sub('[^0-9.]', '', salary)
   return salary
 
-driver = uc.Chrome(executable_path="C:/Users/aargeros/Downloads/chromedriver.exe")
+def make_driver():
+  chrome_options = uc.ChromeOptions()
+  prefs = {"profile.managed_default_content_settings.images": 2,
+          'profile.managed_default_content_settings.javascript': 2}
+  chrome_options.add_experimental_option("prefs", prefs)
+  driver = uc.Chrome(executable_path = ChromeDriverManager().install(),
+                      options= chrome_options)
+  driver.set_window_size(1120, 550)
+  return driver
+
+driver = make_driver()
 
 ## Get Links to all VA public employers -- list is longer than needed, so we filter by hand
 df = pd.DataFrame()
@@ -83,7 +95,6 @@ listings.to_csv('VA_listings_partial.csv', index=False)
 ## Read in the partial VA listings and scrape salaries
 tqdm.pandas()
 data = pd.read_csv("VA_employees_partial.csv").head()
-data['salary'] = data['link'].progress_apply(get_salary)
+data['salary'] = data['link'].progress_apply(get_salary, driver=driver)
 
 data.to_csv('VA_employees_salaries.csv', index=False)
-
